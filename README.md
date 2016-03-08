@@ -1,5 +1,5 @@
 # WebApps
-Repository for programming assignments completed in the Networking and Telecommunication course. Programs are written in Java.
+Repository for programming assignments completed in the Networking and Telecommunication course. Programs are written in Java. 
 
 PA1: netcat program - A file transportation program.
 
