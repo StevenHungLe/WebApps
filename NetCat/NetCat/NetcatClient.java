@@ -1,8 +1,15 @@
-// 
-// CSCI 4311 Example Code: TCP Netcat Client
-// Hung Le
-//
-package csci4311.nc;
+/**
+ * TCP NetcatClient - the client side of netcat, a simple file transfer program using TCP
+ * 
+ * The client works in two modes:
+ * Download mode: read input from the tcp connection and write it to a redirected file
+ * activate this mode by redirecting standard out to a file
+ * Upload mode: read input from a redirected file and write it to the tcp connection
+ * activate this mode by redirecting standard in from a file
+ * 
+ * author: Hung Le
+ **/
+//package com.stevenlesoft.nc;
 
 import java.io.*;
 import java.net.*;
@@ -18,7 +25,7 @@ public class NetcatClient {
 		clientSocket = new Socket( hostName, portNumber);	
 
 		// Create a byte array to hold the bytes read from standard input or from the socket
-			byte[] byteArray = new byte[999999];
+			byte[] byteArray = new byte[1024];
 			
 		if ( System.in.available() == 0 ) // DOWNLOAD MODE: standard input has not been redirected
 		{
@@ -30,17 +37,15 @@ public class NetcatClient {
 			while ( bytesRead != -1 ) // while there is more bytes to be read
 			{
 				// read from socket
-				bytesRead = inFromServer.read(byteArray,0,999999);
+				bytesRead = inFromServer.read(byteArray,0,1024);
 
-				// write to standard output
+				// write to standard output, write the number of bytesread or 0 in case bystesRead = -1
 				System.out.write(byteArray,0, bytesRead >= 0 ? bytesRead : 0  );
 			}
 		}// end of if statement for download mode
 		
 		else // UPLOAD MODE: standard input has been redirected
 		{
-			System.out.println("Client upload mode activated.");
-
 			// Create (buffered) input stream to read from standard input
 			BufferedInputStream inputFromStandard = new BufferedInputStream( System.in );
 
@@ -51,24 +56,25 @@ public class NetcatClient {
 			// Read input bytes from standard input and write to socket to upload
 			int bytesRead = 0;
 			int totalBytesRead = 0;
-			while (  System.in.available() > 0 ) // while there is more bytes to be read
+			while (  bytesRead != -1 ) // while there is more bytes to be read
 			{
 				// Read from standard input
 				bytesRead = inputFromStandard.read(byteArray,0,byteArray.length);
 				
-				// Write to socket
-				outToServer.write(byteArray,0,bytesRead);
+				// write to socket, write the number of bytesread or 0 in case bystesRead = -1
+				outToServer.write(byteArray,0, bytesRead >= 0 ? bytesRead : 0 );
 
 				// Keep a count of the total bytes read
 				totalBytesRead += bytesRead;
 			}
 			
-			System.out.println("Client successfully sent a total of " + bytesRead + " bytes.");
+			System.out.println("Client successfully sent a total of " + totalBytesRead + " bytes.");
 			
 		}// end of else statement for upload mode
 
 		// Close the client socket
 		clientSocket.close();
 		clientSocket = null;
+		
 	} // end main
 } // end class
